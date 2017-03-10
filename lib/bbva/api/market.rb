@@ -1,4 +1,7 @@
 require "bbva/api/market/version"
+require "bbva/api/market/base"
+require "bbva/api/market/client"
+require "bbva/api/market/services"
 
 module Bbva
   module Api
