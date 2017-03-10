@@ -1,8 +1,9 @@
 # Bbva::Api::Market
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/bbva/api/market`. To experiment with that code, run `bin/console` for an interactive prompt.
+BBVA API Market Ruby integration. This gem needs OAuth2 authentication wrapped in this gem: https://github.com/the-cocktail/omniauth-bbva
+And both of them are used in: https://github.com/the-cocktail/demo-bbvaapimarket
 
-TODO: Delete this and the text above, and describe your gem
+BBVA API documentation: https://www.bbvaapimarket.com/
 
 ## Installation
 
