@@ -44,6 +44,15 @@ module Bbva
             JSON.parse(response)["data"].with_indifferent_access
           end
 
+          # This function is used for the Second Factor Authentication (2FA)
+          # Some services require a 2FA. Ex: a code send via SMS to the user
+          # How it works:
+          # => We request the service for first time, with the regular token. It response with a 428 (2FA needed) a ticket and a new token (otp token)
+          # => With this ticket and the back url, we generate a URL in order to redirect the user
+          # => The user goes to that URL and insert the SMS code
+          # => The external app redirects the user to our back_url with the result
+          # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
+
           def get_otp_url_and_token url, body = {}
             # We need to use the &block in order to not raise exception of the 428 required for the 2FA
             response = RestClient.post(url, body.to_json, headers(@token)){|response, request, result| response }

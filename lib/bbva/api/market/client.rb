@@ -134,6 +134,9 @@ module Bbva
           data || {}
         end
 
+
+        # See description in base.rb in order to understand this couple of functions
+
         def get_otp_url_and_token_for(service, payload = {})
           url = get_url_for_service(service)
           get_otp_url_and_token(url, payload)
