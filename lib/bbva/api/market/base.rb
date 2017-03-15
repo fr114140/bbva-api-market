@@ -33,24 +33,20 @@ module Bbva
         private
 
           def perform_get url
-            response  = RestClient.get url, :content_type => "application/json", :Authorization => "jwt #{@token}"
+            response  = RestClient.get url, headers(@token)
             JSON.parse(response)["data"].with_indifferent_access
           end
 
           def perform_post url, body = {}, token = nil
             # We need to receive token param in order to use the Second Factor Authentication token when required
             token ||= @token
-            response = RestClient.post(url, body.to_json, {:accept => "application/json",
-                                    :content_type => "application/json",
-                                    :Authorization => "jwt #{token}"})
+            response = RestClient.post(url, body.to_json, headers(token))
             JSON.parse(response)["data"].with_indifferent_access
           end
 
           def get_otp_url_and_token url, body = {}
             # We need to use the &block in order to not raise exception of the 428 required for the 2FA
-            response = RestClient.post(url, body.to_json, {:accept => "application/json",
-                                    :content_type => "application/json",
-                                    :Authorization => "jwt #{@token}"}){|response, request, result| response }
+            response = RestClient.post(url, body.to_json, headers(@token)){|response, request, result| response }
             parsed_response = JSON.parse(response)
             if parsed_response["result"]["code"] == 428
               data = parsed_response["data"]
@@ -58,6 +54,14 @@ module Bbva
             else
               raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
             end
+          end
+
+          def headers(token)
+            {
+              :accept => "application/json",
+              :content_type => "application/json",
+              :Authorization => "jwt #{token}"
+            }
           end
 
       end
