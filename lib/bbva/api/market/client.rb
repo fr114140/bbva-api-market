@@ -121,6 +121,32 @@ module Bbva
           data || {}
         end
 
+        # id  Transfer identifier. Example: 15500006201041
+        # sepa    Single Euro Payments Area. Example: true
+        # value.amount    Amount of money. Example: 12.43
+        # value.currency  Currency of amount. Example: EUR
+        # fee.amount  Transfer fee. Example: 0
+        # fee.currency    Fee currency. Example: EUR
+        # operationType   Transfer type. Accepted values are: NATIONAL (National Transfer), INTERNATIONAL (International Transfer), INTERNAL (Transfer between accounts from same client)
+        def send_transfer(payload, token = nil)
+          url = "#{PAYMENTS_PATH}/transfers"
+          data = perform_post(url, payload, token)
+          data || {}
+        end
+
+        def get_otp_url_and_token_for(service, payload = {})
+          url = get_url_for_service(service)
+          get_otp_url_and_token(url, payload)
+        end
+
+        def get_url_for_service(service)
+          case service
+          when :transfer
+            "#{PAYMENTS_PATH}/transfers"
+          end
+
+        end
+
       end
     end
   end
