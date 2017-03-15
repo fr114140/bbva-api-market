@@ -54,7 +54,7 @@ module Bbva
             parsed_response = JSON.parse(response)
             if parsed_response["result"]["code"] == 428
               data = parsed_response["data"]
-              ["#{data["otp_url"]}?ticket=#{data["ticket"]}&back_url=#{Settings.bbva.otp_back_url}&otp_token=#{data["token"]}", data["token"]]
+              ["#{data["otp_url"]}?ticket=#{data["ticket"]}&back_url=#{Settings.bbva.otp_back_url}", data["token"]]
             else
               raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
             end
