@@ -32,16 +32,22 @@ module Bbva
 
         private
 
-          def perform_get url
-            response  = RestClient.get url, headers(@token)
-            JSON.parse(response)["data"].with_indifferent_access
+          def perform_get url, token = nil
+            token ||= @token
+            response  = RestClient.get url, headers(token)
+            parsed_response(response)
           end
 
           def perform_post url, body = {}, token = nil
             # We need to receive token param in order to use the Second Factor Authentication token when required
             token ||= @token
             response = RestClient.post(url, body.to_json, headers(token))
-            JSON.parse(response)["data"].with_indifferent_access
+            parsed_response(response)
+          end
+
+          def parsed_response(response)
+            data = JSON.parse(response)["data"]
+            data.is_a?(Hash) ? data.with_indifferent_access : data
           end
 
           # This function is used for the Second Factor Authentication (2FA)
