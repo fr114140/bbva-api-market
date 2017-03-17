@@ -28,6 +28,7 @@ This gem contains also a client with some basic services of BBVA API MARKET like
 - Accounts (https://www.bbvaapimarket.com/products/accounts)
 - Cards (https://www.bbvaapimarket.com/products/cards)
 - Payments (https://www.bbvaapimarket.com/products/payments)
+- Loans (https://www.bbvaapimarket.com/products/loans)
 
 An also the ```refresh_token```method to used once the credentials have expired.
 
