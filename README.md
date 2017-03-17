@@ -1,16 +1,18 @@
-# Bbva::Api::Market
+# Bbva::Api::Market (WIP)
 
 BBVA API Market Ruby integration. This gem needs OAuth2 authentication wrapped in this gem: https://github.com/the-cocktail/omniauth-bbva
 And both of them are used in: https://github.com/the-cocktail/demo-bbvaapimarket
 
 BBVA API documentation: https://www.bbvaapimarket.com/
 
+This gem do not have all the services of the BBVA API Market, it's work in progress. Feel free to upgrade it with new features. It be more than welcome :)
+
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'bbva-api-market'
+gem 'bbva-api-market', git: 'git://github.com/the-cocktail/bbva-api-market'
 ```
 
 And then execute:
@@ -27,9 +29,9 @@ Or install it yourself as:
 
 This gem contains also a client with some basic services of BBVA API MARKET like:
 - Identity
-- Accounts
-- Cards
-- Payments
+- Accounts (https://www.bbvaapimarket.com/products/accounts)
+- Cards (https://www.bbvaapimarket.com/products/cards)
+- Payments (https://www.bbvaapimarket.com/products/payments)
 
 An also the ```refresh_token```method to used once the credentials have expired.
 
@@ -50,7 +52,7 @@ An also the ```refresh_token```method to used once the credentials have expired.
         config.code           = 'YOUR_CODE'
       end
       #or
-      @client = Bbva::Api::Market::Client.new(hash_with_credentials)
+      @client ||= Bbva::Api::Market::Client.new(hash_with_credentials)
     ```
     
 - Finally get some data
@@ -65,6 +67,24 @@ An also the ```refresh_token```method to used once the credentials have expired.
     @cards     = @client.cards
     #Get a specific card
     @card      = @client.cards(card_id)
+```
+
+### Paystats
+https://www.bbvaapimarket.com/products/paystats
+
+This gem contains also a Paystats with some basic services of BBVA API MARKET like:
+- Zipcode basic stats
+
+### Using Paystats in Rails
+
+- Create a new instance of Paystats class
+```ruby
+    @paystats ||= Bbva::Api::Market::Paystats.new({client_id: CLIENT_ID , secret: CLIENT_SECRET})
+```
+
+- Get some data
+```ruby
+    @basic_stats  = @paystats.zipcode_basic_stats(28020, "201509", 10, "es_home", "month", "201512", "201509")
 ```
 
 ## Development
