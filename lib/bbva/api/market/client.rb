@@ -80,7 +80,7 @@ module Bbva
         # client.contactInfo.phone         Client's phone
         def identity
           data = perform_get(IDENTITY_PATH)
-          data[:client] || {}
+          data || {}
         end
 
         #User Cards information (index or show)
