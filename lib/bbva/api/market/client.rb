@@ -83,6 +83,11 @@ module Bbva
           data || {}
         end
 
+        def identity_full 
+          data = get_otp_auth(IDENTITY_FULL_PATH, {})
+          data || {}
+        end
+
         #User Cards information (index or show)
         # Response's body fields for "data" node
         # Field Description

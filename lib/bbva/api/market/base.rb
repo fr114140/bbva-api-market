@@ -71,6 +71,20 @@ module Bbva
             end
           end
 
+          def get_otp_auth url, body = {}
+            response = RestClient.get(url, headers(@token)){|response, request, result| response }
+            parsed_response = JSON.parse(response)
+            case parsed_response["result"]["code"]
+            when 428
+              data = parsed_response["data"]
+              {otp_url: "#{data["otp_url"]}?ticket=#{data["ticket"]}", otp_token: data["token"] }
+            when 200
+              parsed_response(response)
+            else
+              raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
+            end
+          end
+
           def headers(token)
             {
               :accept => "application/json",
