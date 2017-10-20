@@ -50,7 +50,7 @@ module Bbva
             data.is_a?(Hash) ? data.with_indifferent_access : data
           end
 
-          # This function is used for the Second Factor Authentication (2FA)
+          # This function is used for the Second Factor Authentication (2FA) at POST Api calls
           # Some services require a 2FA. Ex: a code send via SMS to the user
           # How it works:
           # => We request the service for first time, with the regular token. It response with a 428 (2FA needed) a ticket and a new token (otp token)
@@ -70,6 +70,15 @@ module Bbva
               raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
             end
           end
+
+          # This function is used for the Second Factor Authentication (2FA) at GET Api calls
+          # Some services require a 2FA. Ex: a code send via SMS to the user
+          # How it works:
+          # => We request the service for first time, with the regular token. It response with a 428 (2FA needed) a ticket and a new token (otp token)
+          # => With this ticket and the back url, we generate a URL in order to redirect the user
+          # => The user goes to that URL and insert the SMS code
+          # => The external app redirects the user to our back_url with the result
+          # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
 
           def get_otp_auth url, body = {}
             response = RestClient.get(url, headers(@token)){|response, request, result| response }

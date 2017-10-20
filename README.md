@@ -57,6 +57,7 @@ An also the ```refresh_token```method to used once the credentials have expired.
 ```ruby
     #Personal information
     @me        = @client.identity
+    @me        = @client.identity_otp # OTP authentication will be needed
     #Get all acounts
     @accounts  = @client.accounts
     #Get a specific account

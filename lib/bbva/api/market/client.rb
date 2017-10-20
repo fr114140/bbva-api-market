@@ -66,6 +66,22 @@ module Bbva
         # client.secondSurname             Client's second surname (this field is optional)
         # client.idDocument                Client's identity document
         # client.birthdate                 Client's birthdate
+        # client.address.zipcode           Zipcode for client's address
+        # client.contactInfo.email         Client's email
+        def identity
+          data = perform_get(IDENTITY_PATH)
+          data || {}
+        end
+
+        #User Accounts information extended
+        # Response's body fields for "data" node.
+        # Field Description
+        # client.id                        External unique identifier for the client and application performing the request
+        # client.name                      Client's name
+        # client.surname                   Client's surname
+        # client.secondSurname             Client's second surname (this field is optional)
+        # client.idDocument                Client's identity document
+        # client.birthdate                 Client's birthdate
         # client.address.additionalData    Additional data for client's address
         # client.address.door              Door for client's address
         # client.address.floor             Floor for client's address
@@ -78,13 +94,8 @@ module Bbva
         # client.address.zipcode           Zipcode for client's address
         # client.contactInfo.email         Client's email
         # client.contactInfo.phone         Client's phone
-        def identity
-          data = perform_get(IDENTITY_PATH)
-          data || {}
-        end
-
-        def identity_full 
-          data = get_otp_auth(IDENTITY_FULL_PATH, {})
+        def identity_otp 
+          data = get_otp_auth(IDENTITY_OTP_PATH, {})
           data || {}
         end
 

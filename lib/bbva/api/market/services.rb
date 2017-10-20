@@ -4,7 +4,7 @@ module Bbva
 
       ACCOUNTS_PATH       = "https://apis.bbva.com/accounts-sbx/v1/me/accounts"
       IDENTITY_PATH       = "https://apis.bbva.com/customers-sbx/v1/me-basic"
-      IDENTITY_FULL_PATH  = "https://apis.bbva.com/customers-sbx/v1/me-full"
+      IDENTITY_OTP_PATH  = "https://apis.bbva.com/customers-sbx/v1/me-full"
       CARDS_PATH          = "https://apis.bbva.com/cards-sbx/v2/me/cards"
       LOANS_PATH          = "https://apis.bbva.com/loans-sbx/v1/me"
       PAYMENTS_PATH       = "https://apis.bbva.com/payments-sbx/v1/me"
