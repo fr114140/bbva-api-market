@@ -79,18 +79,22 @@ module Bbva
           # => The user goes to that URL and insert the SMS code
           # => The external app redirects the user to our back_url with the result
           # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
-
+          # => This could return a binary file if identity_file was required. This will raise JsonParserError and return binary file in raw
           def get_otp_auth url, body = {}
             response = RestClient.get(url, headers(@token)){|response, request, result| response }
-            parsed_response = JSON.parse(response)
-            case parsed_response["result"]["code"]
-            when 428
-              data = parsed_response["data"]
-              {otp_url: "#{data["otp_url"]}?ticket=#{data["ticket"]}", otp_token: data["token"] }
-            when 200
-              parsed_response(response)
-            else
-              raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
+            begin
+              parsed_response = JSON.parse(response)
+              case parsed_response["result"]["code"]
+              when 428
+                data = parsed_response["data"]
+                {otp_url: "#{data["otp_url"]}?ticket=#{data["ticket"]}", otp_token: data["token"] }
+              when 200
+                parsed_response(response)
+              else
+                raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
+              end
+            rescue JSON::ParserError
+              response
             end
           end
 

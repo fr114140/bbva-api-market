@@ -99,6 +99,15 @@ module Bbva
           data || {}
         end
 
+        #User Identity File as Binary
+        # Response's body fields for "data" node.
+        # Field Description
+        # String                           Binary file
+        def identity_file
+          data = get_otp_auth(IDENTITY_FILE_PATH, {})
+          data || {}
+        end
+
         #User Cards information (index or show)
         # Response's body fields for "data" node
         # Field Description
