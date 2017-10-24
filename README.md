@@ -87,6 +87,10 @@ This gem contains also a Paystats with some basic services of BBVA API MARKET li
     @basic_stats  = @paystats.zipcode_basic_stats(28020, "201509", 10, "es_home", "month", "201512", "201509")
 ```
 
+- Manage exeptions
+
+BBVA API MARKET calls could raise some special exceptions caused by BBVA API MARKET (expired session, authentication errors, bad request, api services down, etc) named `::Bbva::Api::Market::Error::BbvaTypeException` This exceptions must to be controlled in your application to separate Bbva Service error from other exceptions.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
