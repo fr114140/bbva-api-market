@@ -3,6 +3,9 @@ module Bbva
   module Api
     module Market
       class Base
+        include ActiveSupport::Rescuable
+
+        rescue_from ::RestClient::Exception, with: :raise_bbva_exception
 
         attr_accessor :token, :secret, :code, :refresh_token, :client_id
 
@@ -30,27 +33,27 @@ module Bbva
             :Authorization => "Basic #{Base64.strict_encode64("#{@client_id}:#{@secret}")}"
         end
 
+        def raise_bbva_exception(exception)
+          raise Bbva::Api::Market::Error::BbvaTypeException.new(exception.message)
+        end
+
         private
 
           def perform_get url, token = nil
             token ||= @token
-            begin
-              response  = RestClient.get url, headers(token) 
-              parsed_response(response)
-            rescue ::StandardError => e
-              raise Bbva::Api::Market::Error::BbvaTypeException.new(e.message)
-            end
+            response  = RestClient.get url, headers(token) 
+            parsed_response(response)
+          rescue ::RestClient::Exception => e
+            rescue_with_handler(e)
           end
 
           def perform_post url, body = {}, token = nil
             # We need to receive token param in order to use the Second Factor Authentication token when required
             token ||= @token
-            begin
-              response = RestClient.post(url, body.to_json, headers(token))
-              parsed_response(response)
-            rescue ::StandardError => e
-              raise Bbva::Api::Market::Error::BbvaTypeException.new(e.message)
-            end
+            response = RestClient.post(url, body.to_json, headers(token))
+            parsed_response(response)
+          rescue ::RestClient::Exception => e
+            rescue_with_handler(e)
           end
 
           def parsed_response(response)
@@ -67,18 +70,14 @@ module Bbva
           # => The external app redirects the user to our back_url with the result
           # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
           def get_otp_url_and_token url, body = {}
-            begin
-              # We need to use the &block in order to not raise exception of the 428 required for the 2FA
-              response = RestClient.post(url, body.to_json, headers(@token)){|response, request, result| response }
-              parsed_response = JSON.parse(response)
-              if parsed_response["result"]["code"] == 428
-                data = parsed_response["data"]
-                ["#{data["otp_url"]}?ticket=#{data["ticket"]}&back_url=#{Settings.bbva.otp_back_url}", data["token"]]
-              else
-                raise Bbva::Api::Market::Error::BbvaTypeException.new("#{parsed_response["result"]["code"]}")
-              end
-            rescue ::StandardError => e
-              raise Bbva::Api::Market::Error::BbvaTypeException.new(e.message)
+            # We need to use the &block in order to not raise exception of the 428 required for the 2FA
+            response = RestClient.post(url, body.to_json, headers(@token)){|response, request, result| response }
+            parsed_response = JSON.parse(response)
+            if parsed_response["result"]["code"] == 428
+              data = parsed_response["data"]
+              ["#{data["otp_url"]}?ticket=#{data["ticket"]}&back_url=#{Settings.bbva.otp_back_url}", data["token"]]
+            else
+              raise Bbva::Api::Market::Error::BbvaTypeException.new("#{parsed_response["result"]["code"]}")
             end
           end
 
@@ -106,8 +105,6 @@ module Bbva
               end
             rescue JSON::ParserError
               response
-            rescue ::StandardError => e
-              raise Bbva::Api::Market::Error::BbvaTypeException.new(e.message)
             end
           end
 
