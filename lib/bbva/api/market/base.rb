@@ -3,6 +3,9 @@ module Bbva
   module Api
     module Market
       class Base
+        include ActiveSupport::Rescuable
+
+        rescue_from ::RestClient::Exception, with: :raise_bbva_exception
 
         attr_accessor :token, :secret, :code, :refresh_token, :client_id
 
@@ -30,12 +33,18 @@ module Bbva
             :Authorization => "Basic #{Base64.strict_encode64("#{@client_id}:#{@secret}")}"
         end
 
+        def raise_bbva_exception(exception)
+          raise Bbva::Api::Market::Error::BbvaTypeException.new(exception.message)
+        end
+
         private
 
           def perform_get url, token = nil
             token ||= @token
-            response  = RestClient.get url, headers(token)
+            response  = RestClient.get url, headers(token) 
             parsed_response(response)
+          rescue ::RestClient::Exception => e
+            rescue_with_handler(e)
           end
 
           def perform_post url, body = {}, token = nil
@@ -43,6 +52,8 @@ module Bbva
             token ||= @token
             response = RestClient.post(url, body.to_json, headers(token))
             parsed_response(response)
+          rescue ::RestClient::Exception => e
+            rescue_with_handler(e)
           end
 
           def parsed_response(response)
@@ -58,7 +69,6 @@ module Bbva
           # => The user goes to that URL and insert the SMS code
           # => The external app redirects the user to our back_url with the result
           # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
-
           def get_otp_url_and_token url, body = {}
             # We need to use the &block in order to not raise exception of the 428 required for the 2FA
             response = RestClient.post(url, body.to_json, headers(@token)){|response, request, result| response }
@@ -67,7 +77,7 @@ module Bbva
               data = parsed_response["data"]
               ["#{data["otp_url"]}?ticket=#{data["ticket"]}&back_url=#{Settings.bbva.otp_back_url}", data["token"]]
             else
-              raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
+              raise Bbva::Api::Market::Error::BbvaTypeException.new("#{parsed_response["result"]["code"]}")
             end
           end
 
@@ -81,8 +91,8 @@ module Bbva
           # => If result is OK, the otp token is activated, and we are able to make the same request like the first one but with the otp token, instead the regular one
           # => This could return a binary file if identity_file was required. This will raise JsonParserError and return binary file in raw
           def get_otp_auth url, body = {}
-            response = RestClient.get(url, headers(@token)){|response, request, result| response }
             begin
+              response = RestClient.get(url, headers(@token)){|response, request, result| response }
               parsed_response = JSON.parse(response)
               case parsed_response["result"]["code"]
               when 428
@@ -91,7 +101,7 @@ module Bbva
               when 200
                 parsed_response(response)
               else
-                raise "RestClient::RequestFailed Exception: HTTP status code #{parsed_response["result"]["code"]}"
+                raise Bbva::Api::Market::Error::BbvaTypeException.new("#{parsed_response["result"]["code"]}")
               end
             rescue JSON::ParserError
               response
